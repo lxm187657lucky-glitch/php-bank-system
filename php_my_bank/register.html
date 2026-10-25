@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>虚拟银行 - 数字开户注册门户</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { display: flex; height: 100vh; background-color: #f4f7f6; overflow: hidden; }
+
+        /* 左侧金融科技 Banner 区域 */
+        .banner-side {
+            flex: 1.2;
+            background: linear-gradient(135deg, #1b263b, #415a77, #778da9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px;
+            color: white;
+            position: relative;
+        }
+        .banner-title { font-size: 42px; font-weight: 700; margin-bottom: 20px; letter-spacing: 2px; line-height: 1.3; }
+        .banner-title span { color: #00b4d8; }
+        .banner-desc { font-size: 16px; color: #e0e1dd; line-height: 1.8; max-width: 500px; opacity: 0.9; }
+
+        /* 右侧清爽注册卡片区域 */
+        .reg-side {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffffff;
+            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.03);
+        }
+        .reg-box { width: 100%; max-width: 400px; padding: 40px; }
+        .reg-header { margin-bottom: 30px; }
+        .reg-header h2 { font-size: 28px; color: #1b263b; margin-bottom: 8px; font-weight: 600; }
+        .reg-header p { font-size: 14px; color: #777; }
+
+        /* 表单样式 */
+        .input-group { position: relative; margin-bottom: 20px; }
+        .input-group label { display: block; font-size: 13px; color: #415a77; font-weight: 600; margin-bottom: 8px; }
+        .input-group input {
+            width: 100%; padding: 12px 16px; border: 2px solid #e0e1dd; border-radius: 8px;
+            font-size: 15px; color: #1b263b; transition: all 0.3s ease; background-color: #fafafa;
+        }
+        .input-group input:focus {
+            border-color: #2196F3; background-color: #fff; outline: none;
+            box-shadow: 0 0 12px rgba(33, 150, 243, 0.15);
+        }
+
+        .reg-btn {
+            width: 100%; padding: 14px; background: linear-gradient(135deg, #00b4d8, #0077b6);
+            color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold;
+            cursor: pointer; box-shadow: 0 4px 15px rgba(0, 180, 216, 0.3); transition: all 0.2s ease;
+            margin-top: 10px;
+        }
+        .reg-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 180, 216, 0.5); }
+        
+        .back-login { text-align: center; margin-top: 20px; font-size: 14px; }
+        .back-login a { color: #2196F3; text-decoration: none; font-weight: 500; }
+        .back-login a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <div class="banner-side">
+        <h1 class="banner-title">秒级开户<br><span>开启数字金融</span><br>全新体验</h1>
+        <p class="banner-desc">只需自定义您的客户标识与核心密码，系统将依托高度合规的清算底层，为您全自动配发 19 位银联标准借记卡号，并注入 10,000 元初始测试模拟资金。</p>
+    </div>
+
+    <div class="reg-side">
+        <div class="reg-box">
+            <div class="reg-header">
+                <h2>🌱 申请全功能账户</h2>
+                <p>自定义您的核心密钥，即可完成数字开户</p>
+            </div>
+
+            <form id="regForm">
+                <div class="input-group">
+                    <label for="username">👤 自定义客户名 / 账号名称</label>
+                    <input type="text" id="username" placeholder="建议使用英文字母或拼音" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="password">🔑 设置核心交易密码</label>
+                    <input type="password" id="password" placeholder="请牢记您的密码" required>
+                </div>
+
+                <button type="button" id="regBtn" class="reg-btn">立即签署并在线开户</button>
+                
+                <div class="back-login">
+                    已有账户？<a href="login.html">返回安全登录</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('regBtn').addEventListener('click', function() {
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+
+            if(!u || !p) {
+                alert('请完整填写账户名和密码！');
+                return;
+            }
+
+            fetch('register.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: u, password: p })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.code === 200) {
+                    // 弹出成功提示，并清晰展示自动生成的卡号
+                    alert(`🎉 开户成功！\n您的专属卡号为：${data.card_number}\n系统已为您注入 10000 元初始测试资金！`);
+                    window.location.href = 'login.html';
+                } else {
+                    alert('❌ 开户失败：' + data.message);
+                }
+            })
+            .catch(err => {
+                alert('⚠️ 服务器响应异常');
+            });
+        });
+    </script>
+</body>
+</html>

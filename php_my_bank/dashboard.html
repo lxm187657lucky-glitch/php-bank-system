@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>虚拟银行 - 全栈数字资产管理大盘</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f4f7f6;
+            color: #1b263b;
+            min-height: 100vh;
+            padding: 30px;
+        }
+
+        /* 顶部导航栏 */
+        .nav-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #1b263b;
+            padding: 15px 30px;
+            border-radius: 12px;
+            color: white;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-logo {
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            color: #2196F3;
+        }
+
+        .nav-user {
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logout-btn {
+            color: #ff4d4f;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 5px 10px;
+            border: 1px solid #ff4d4f;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: #ff4d4f;
+            color: white;
+        }
+
+        /* 主布局大舱 */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.8fr;
+            gap: 30px;
+        }
+
+        /* 左侧：资产总览卡片 */
+        .balance-card {
+            background: linear-gradient(135deg, #0d1b2a, #1b263b);
+            border-radius: 12px;
+            padding: 35px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            height: fit-content;
+        }
+
+        .balance-card::after {
+            content: '';
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: rgba(33, 150, 243, 0.1);
+            filter: blur(50px);
+            border-radius: 50%;
+            right: -50px;
+            bottom: -50px;
+        }
+
+        .card-label {
+            font-size: 14px;
+            color: #8d99ae;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .card-amount {
+            font-size: 38px;
+            font-weight: 700;
+            margin: 15px 0;
+            color: #00b4d8;
+        }
+
+        .card-info {
+            font-size: 13px;
+            color: #e0e1dd;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 15px;
+            margin-top: 20px;
+        }
+
+        /* 右侧：功能面板与流水历史 */
+        .main-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        /* 快捷功能区 */
+        .actions-box {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+        }
+
+        .actions-box h3 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #415a77;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 20px;
+        }
+
+        .action-link {
+            flex: 1;
+            text-align: center;
+            padding: 18px;
+            border-radius: 8px;
+            background: #f8f9fa;
+            text-decoration: none;
+            color: #1b263b;
+            font-weight: 600;
+            font-size: 15px;
+            border: 2px solid #e0e1dd;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .action-link:hover {
+            border-color: #2196F3;
+            background: rgba(33, 150, 243, 0.02);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        /* 电子流水历史表格 */
+        .history-box {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+            min-height: 250px;
+        }
+
+        .history-box h3 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #415a77;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            text-align: left;
+        }
+
+        .history-table th {
+            padding: 12px;
+            font-size: 13px;
+            color: #778da9;
+            border-bottom: 2px solid #edf2f4;
+        }
+
+        .history-table td {
+            padding: 14px 12px;
+            font-size: 14px;
+            border-bottom: 1px solid #edf2f4;
+        }
+
+        /* 状态标签微样式 */
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            background: rgba(76, 175, 80, 0.1);
+            color: #4CAF50;
+        }
+
+        .status-minus {
+            color: #f44336;
+            font-weight: bold;
+        }
+
+        .status-plus {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #999;
+            padding: 50px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="nav-header">
+        <div class="nav-logo">🏦 VIRTUAL BANK CORE SYSTEM</div>
+        <div class="nav-user">
+            <span>欢迎回来，操作员：<strong id="display-username">加载中...</strong></span>
+            <a href="logout.php" class="logout-btn">安全签退</a>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+
+        <div class="balance-card">
+            <div>
+                <p class="card-label">数字资产可用余额 (CNY)</p>
+                <h1 class="card-amount" id="display-balance">￥0.00</h1>
+            </div>
+
+            <div class="card-info">
+                <p style="margin-bottom: 5px;">💳 核心清算卡号：</p>
+                <p style="font-family: monospace; font-size: 16px; letter-spacing: 1px; color: #00b4d8;"
+                    id="display-card">---- ---- ---- ----</p>
+            </div>
+        </div>
+
+        <div class="main-panel">
+            <div class="actions-box">
+                <h3>⚡ 核心业务敏捷执行指令</h3>
+                <div class="btn-group" style="margin-bottom: 20px;">
+                    <a href="transfer_view.php" class="action-link">💸 签署数字转账清算指令</a>
+                    <a href="#" class="action-link" onclick="alert('本平台已开通全额理财权限，合规模块接入中...'); return false;">📈
+                        申购随存随取核心头寸</a>
+                </div>
+
+                <div
+                    style="background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px dashed #415a77; display: flex; gap: 10px; align-items: center;">
+                    <span style="font-size: 14px; font-weight: bold; color: #1b263b;">🏪 ATM自助网点:</span>
+                    <input type="number" id="atm-amount" placeholder="输入存/取金额"
+                        style="padding: 8px; border: 2px solid #e0e1dd; border-radius: 6px; width: 130px; font-size: 14px; outline: none;">
+                    <button onclick="handleATM('deposit')"
+                        style="background: #4CAF50; color: white; border: none; padding: 8px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: opacity 0.2s;"
+                        onmouseover="this.style.opacity=0.9" onmouseout="this.style.opacity=1">📭 现金存款</button>
+                    <button onclick="handleATM('withdraw')"
+                        style="background: #ff4d4f; color: white; border: none; padding: 8px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: opacity 0.2s;"
+                        onmouseover="this.style.opacity=0.9" onmouseout="this.style.opacity=1">📬 现金取款</button>
+                </div>
+            </div>
+
+            <div class="history-box">
+                <h3>📋 核心系统最近5笔交易审计流水 <span
+                        style="font-size: 12px; color: #999; font-weight: normal; margin-left: 10px;">实时对账已开启</span>
+                </h3>
+                <div id="history-container">
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 异步去请求后端的 API 接口
+            fetch('get_dashboard_data.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 200) {
+                        // 1. 成功获取数据后，优雅地塞入前端 HTML 节点
+                        document.getElementById('display-username').innerText = data.username;
+                        document.getElementById('display-balance').innerText = '￥' + data.balance;
+
+                        // 格式化卡号展示（每 4 位加一个空格）
+                        const rawCard = data.card_number;
+                        const formattedCard = rawCard.replace(/(.{4})/g, '$1 ').trim();
+                        document.getElementById('display-card').innerText = formattedCard;
+
+                        // 2. 渲染历史交易流水表格
+                        const container = document.getElementById('history-container');
+                        if (!data.history || data.history.length === 0) {
+                            container.innerHTML = `<div class="no-data">🔍 暂无全链路清算历史数据（新开户请先执行一笔转账）</div>`;
+                        } else {
+                            let tableHtml = `
+                            <table class="history-table">
+                                <thead>
+                                    <tr>
+                                        <th>交易类型</th>
+                                        <th>对方账户</th>
+                                        <th>清算金额</th>
+                                        <th>记账时间</th>
+                                        <th>核心状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                        `;
+
+                            data.history.forEach(trade => {
+                                tableHtml += `
+                                <tr>
+                                    <td>${trade.type}</td>
+                                    <td style="font-family: monospace;">${trade.oppo_card}</td>
+                                    <td class="${trade.amount_class}">${trade.amount}</td>
+                                    <td style="color: #666; font-size: 13px;">${trade.created_at}</td>
+                                    <td><span class="status-badge">SUCCESS</span></td>
+                                </tr>
+                            `;
+                            });
+
+                            tableHtml += `</tbody></table>`;
+                            container.innerHTML = tableHtml;
+                        }
+                    } else if (data.code === 401) {
+                        // 如果没登录，直接重定向回登录页
+                        window.location.href = 'login.html';
+                    }
+                })
+                .catch(err => {
+                    console.error('大盘清算服务加载失败:', err);
+                });
+        });
+
+        // =================================================================
+        // 🏪 核心控制函数：处理 ATM 自助存取款请求 (已完美拼接到末尾)
+        // =================================================================
+        window.handleATM = function (actionType) {
+            const amountInput = document.getElementById('atm-amount');
+            const amount = parseFloat(amountInput.value);
+
+            if (isNaN(amount) || amount <= 0) {
+                alert("⚠️ 请输入有效的正数金额");
+                return;
+            }
+
+            const actionName = actionType === 'deposit' ? '存款' : '取款';
+            if (!confirm(`确定要在当前账户执行 [${actionName} ￥${amount.toFixed(2)}] 指令吗？`)) {
+                return;
+            }
+
+            fetch('atm_action.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: actionType, amount: amount })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.code === 200) {
+                        alert(`🎉 ${actionName}成功！系统正在刷新核心账目...`);
+                        amountInput.value = ''; // 清空输入框
+                        window.location.reload(); // 刷新页面，让余额和流水瞬间同步更新
+                    } else {
+                        alert("❌ 操作被核心拒绝: " + data.message);
+                    }
+                })
+                .catch(err => {
+                    alert("⚠️ 核心清算节点无响应，请检查服务。");
+                });
+        }
+    </script>
+</body>
+
+</html>

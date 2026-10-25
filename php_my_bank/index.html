@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>虚拟银行 - 交易测试</title>
+</head>
+<body>
+    <h2>🏦 虚拟银行核心转账系统测试</h2>
+    <hr>
+    <form id="transferForm">
+        <p>付款方卡号：<input type="text" id="from_card" value="6222020000000000001" style="width:200px;"></p>
+        <p>收款方卡号：<input type="text" id="to_card" value="6222020000000000002" style="width:200px;"></p>
+        <p>转账金额：<input type="number" id="amount" value="500"> 元</p>
+        <button type="button" id="submitBtn">确认转账</button>
+    </form>
+
+    <h3 style="color: blue;">🔍 交易响应结果：</h3>
+    <pre id="result" style="background:#f4f4f4; padding:10px; border:1px solid #ddd;"></pre>
+
+    <script>
+        document.getElementById('submitBtn').addEventListener('click', function() {
+            const payload = {
+                from_card: document.getElementById('from_card').value,
+                to_card: document.getElementById('to_card').value,
+                amount: document.getElementById('amount').value
+            };
+
+            document.getElementById('result').innerText = "处理中，请稍候...";
+
+            // 使用 Fetch 将数据以 JSON 格式发送给后端的 PHP 接口
+            fetch('transfer.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                // 将后端返回的规范 JSON 结果打印在网页上
+                document.getElementById('result').innerText = JSON.stringify(data, null, 4);
+            })
+            .catch(err => {
+                document.getElementById('result').innerText = "网络错误: " + err;
+            });
+        });
+    </script>
+</body>
+</html>
